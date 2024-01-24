@@ -1,0 +1,11 @@
+<!-- templates/register_driver.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Register as a Driver</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+  </form>
+{% endblock %}
