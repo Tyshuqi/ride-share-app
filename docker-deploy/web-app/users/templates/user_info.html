@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>User Info</h2>
+  <p>Username: {{ user.username }}</p>
+  <p>Email: {{ user.email }}</p>
+  <a href="{% url 'update_user_info' %}">Update Info</a>
+
+  {% if driver %}
+    <h3>Driver Info</h3>
+    <p>License Number: {{ driver.license_number }}</p>
+    <!-- Add other driver details here -->
+    <a href="{% url 'update_driver_info' %}">Update Driver Info</a>
+  {% else %}
+    <a href="{% url 'register_driver' %}">Register as Driver</a>
+  {% endif %}
+{% endblock %}
