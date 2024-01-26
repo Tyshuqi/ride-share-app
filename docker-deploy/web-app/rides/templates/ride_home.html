@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="top-right-corner">
+    <a href="{% url 'user_info' %}">User Info</a>
+  </div>
+  <h2>Ride Home</h2>
+  <div>
+    <a href="{% url 'offer_ride' %}">Offer a Ride</a>
+    <a href="{% url 'ride_request' %}">Ride Request</a>
+    <a href="{% url 'view_rides' %}">View Your Rides</a>
+    <a href="{% url 'search_rides' %}">Join a Ride</a>
+  </div>
+{% endblock %}

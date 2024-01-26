@@ -1,0 +1,12 @@
+<!-- ride_edit.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Edit Ride</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Update Ride</button>
+  </form>
+{% endblock %}

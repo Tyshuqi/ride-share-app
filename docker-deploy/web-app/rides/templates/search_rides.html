@@ -1,0 +1,31 @@
+<!-- search_rides.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Search for Rides</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Search</button>
+  </form>
+
+  {% if rides %}
+    <h3>Search Results</h3>
+    <ul>
+      {% for ride in rides %}
+        <li>
+          <p>Ride to {{ ride.destination }} on {{ ride.arrive_time }} for {{ ride.current_passengers_num }} passengers</p>
+          <p>Status: {{ ride.status }}</p>
+          <form action="{% url 'join_ride' ride.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Join Ride</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No available rides based on your search criteria.</p>
+  {% endif %}
+{% endblock %}
+

@@ -24,5 +24,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
-    path('accounts/profile/', user_info, name='profile'),
+   # path('accounts/profile/', user_info, name='ride_home'),
+    path('rides/', include('rides.urls')),  # Include the 'rides' app URL patterns
 ]

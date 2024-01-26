@@ -1,0 +1,31 @@
+<!-- view_rides.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Your Rides</h2>
+
+<h3>As Owner</h3>
+{% for ride in owned_rides %}
+  <p>
+    Ride to {{ ride.destination }} on {{ ride.arrive_time }}, request status: {{ ride.status }}, Passengers:{{ride.current_passengers_num}}
+    <!-- Conditionally display the edit button -->
+    {% if ride.status != 'CONFIRMED' %}
+      <a href="{% url 'ride_edit' pk=ride.pk %}" class="btn btn-primary">Edit</a>
+    {% endif %}
+  </p>
+{% empty %}
+  <p>You have no rides as an owner.</p>
+{% endfor %}
+
+<h3>As Sharer</h3>
+{% for ride in shared_rides %}
+  <p>Ride to {{ ride.destination }} on {{ ride.arrive_time }}, request status: {{ ride.status }}, Passengers:{{ride.current_passengers_num}}</p>
+  <!-- Add more ride details as needed -->
+{% empty %}
+  <p>You are not sharing any rides.</p>
+{% endfor %}
+{% endblock %}
+
+
+

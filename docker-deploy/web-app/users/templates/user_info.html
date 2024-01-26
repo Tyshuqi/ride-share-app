@@ -13,5 +13,13 @@
     <a href="{% url 'update_driver_info' %}">Update Driver Info</a>
   {% else %}
     <a href="{% url 'register_driver' %}">Register as Driver</a>
+  
   {% endif %}
+    <!-- Button to return to ride_home
+    <a href="{% url 'ride_home' %}" class="btn btn-primary">Return to Ride Home</a> -->
+
+    <!-- Button to return to ride_home, now moved to the bottom -->
+  <div style="margin-top: 20px;">
+    <a href="{% url 'ride_home' %}" class="btn btn-primary">Return to Ride Home</a>
+  </div>
 {% endblock %}
