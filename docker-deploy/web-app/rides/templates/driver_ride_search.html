@@ -1,0 +1,22 @@
+<!-- ride_search.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Available Rides for You</h2>
+
+  <h3>Open Ride Requests</h3>
+  {% for ride in rides %}
+    <div>
+      <p>Ride to {{ ride.destination }} on {{ ride.arrive_time }} - Passenger: {{ ride.current_passengers_num }}</p>
+      <!-- Add a button to claim the ride -->
+      <form action="{% url 'claim_ride' ride.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Claim this Ride</button>
+      </form>
+    </div>
+  {% empty %}
+    <p>No available rides matching your vehicle specifications.</p>
+  {% endfor %}
+{% endblock %}
+

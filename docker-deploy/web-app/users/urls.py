@@ -23,6 +23,6 @@ urlpatterns = [
     
     path('update-user-info/', update_user_info, name='update_user_info'),
     path('update-driver-info/', update_driver_info, name='update_driver_info'),
-    
-    
+   
+
 ]

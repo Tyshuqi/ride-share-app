@@ -1,0 +1,11 @@
+<!-- driver_home.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Driver Home</h2>
+  <div>
+    <a href="{% url 'driver_ride_search' %}">Ride Search</a>
+    <a href="{% url 'view_confirmed_rides' %}">View Confirmed Rides</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+<!-- driver_rides.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Your Confirmed Rides</h2>
+
+  {% for ride in rides %}
+    <div>
+      <p>Ride to: {{ ride.destination }} on {{ ride.arrive_time }}</p>
+      <p>Owner: {{ ride.owner.username }} - Passengers: {{ ride.current_passengers_num }}</p>
+      
+      <!-- Displaying sharers information -->
+      {% for sharer in ride.sharers.all %}
+        <p>Sharer: {{ sharer.sharer.username }} - Passengers: {{ sharer.passenger_num }}</p>
+      {% endfor %}
+
+      <!-- Button to mark ride as complete -->
+      <form action="{% url 'complete_ride' ride.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Mark as Complete</button>
+      </form>
+    </div>
+  {% empty %}
+    <p>You have no confirmed rides.</p>
+  {% endfor %}
+{% endblock %}

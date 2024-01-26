@@ -1,5 +1,5 @@
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
@@ -9,6 +9,10 @@ from .models import Ride, Ridesharer
 from django.views.generic.edit import UpdateView
 from .forms import RideSearchForm
 from django.utils.dateparse import parse_datetime
+from users.models import Driver
+
+from django.core.mail import send_mail
+
 
 
 
@@ -231,7 +235,100 @@ def join_ride(request, ride_id):
 
     return redirect('search_rides')
 
+
+
 @login_required
 def offer_ride(request):
-    # Add your logic here
-    return render(request, 'offer_ride.html')
+    # Check if the user is a driver
+    if Driver.objects.filter(user=request.user).exists():
+        return redirect('driver_home')
+    else:
+        return redirect('user_info')
+
+@login_required
+def driver_home(request):
+    return render(request, 'driver_home.html')
+
+
+# @login_required
+# def offer_ride(request):
+#     # Add your logic here
+#     return render(request, 'offer_ride.html')
+
+# @login_required
+# def ride_search(request):
+#     # Add your logic here
+#     return render(request, 'ride_search.html')
+
+
+
+@login_required
+def driver_ride_search(request):
+    try:
+        driver = Driver.objects.get(user=request.user)
+        rides = Ride.objects.filter(
+            status=Ride.RideStatus.OPEN,
+            vehicle_type__icontains=driver.vehicle_type,
+            special_request__icontains=driver.special_vehicle_info,
+            current_passengers_num__lte=driver.max_capacity
+        )
+    except Driver.DoesNotExist:
+        rides = Ride.objects.none()  # No rides to show if the user is not a driver
+
+    return render(request, 'driver_ride_search.html', {'rides': rides})
+
+
+
+
+@login_required
+def claim_ride(request, ride_id):
+    try:
+        driver = Driver.objects.get(user=request.user)
+        ride = Ride.objects.get(id=ride_id, status=Ride.RideStatus.OPEN)
+
+        ride.driver = driver
+        ride.status = Ride.RideStatus.CONFIRMED
+        ride.save()
+
+        # Send notification about claiming the ride
+        send_ride_notification_email(ride, 'Ride Claimed Notification')
+
+        # Redirect to a success page or driver's dashboard
+        return redirect('view_confirmed_rides')
+    except (Ride.DoesNotExist, Driver.DoesNotExist):
+        # Handle exceptions or redirect to an error page
+        return redirect('error_page')
+
+def send_ride_notification_email(ride, subject):
+    recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
+    message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
+    send_mail(subject, message, 'from@example.com', recipient_list)
+    
+    
+
+# @login_required
+# def view_confirmed_rides(request):
+#     # Add your logic here
+#     return render(request, 'view_confirmed_rides.html')
+
+
+@login_required
+def view_confirmed_rides(request):
+    driver = get_object_or_404(Driver, user=request.user)
+    rides = Ride.objects.filter(driver=driver, status=Ride.RideStatus.CONFIRMED)
+
+    return render(request, 'view_confirmed_rides.html', {'rides': rides})
+
+
+@login_required
+def complete_ride(request, ride_id):
+    if request.method == 'POST':
+        ride = get_object_or_404(Ride, id=ride_id, driver__user=request.user)
+        ride.status = Ride.RideStatus.COMPLETE
+        ride.save()
+
+        # Redirect to the driver's confirmed rides page
+        return redirect('driver_home')
+
+    # Redirect back if not a POST request
+    return redirect('view_confirmed_rides')
