@@ -3,8 +3,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="top-left-corner">
+  <a href="{% url 'ride_home' %}">Home</a>
+</div>
 <h2>Your Rides</h2>
-
 <h3>As Owner</h3>
 {% for ride in owned_rides %}
   <p>

@@ -3,6 +3,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="top-left-corner">
+  <a href="{% url 'ride_home' %}">Ride Home</a>
+</div>
+<div class="top-left-corner">
+  <a href="{% url 'driver_home' %}">Driver Home</a>
+</div>
   <h2>Available Rides for You</h2>
 
   <h3>Open Ride Requests</h3>

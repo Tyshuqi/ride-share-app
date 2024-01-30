@@ -13,6 +13,10 @@ from users.models import Driver
 
 from django.core.mail import send_mail
 
+from django.db.models import Q
+import logging
+
+
 
 
 
@@ -262,16 +266,73 @@ def driver_home(request):
 
 
 
+# @login_required
+# def driver_ride_search(request):
+#     try:
+#         driver = Driver.objects.get(user=request.user)
+#         rides = Ride.objects.filter(
+#             status=Ride.RideStatus.OPEN,
+#             vehicle_type__icontains=driver.vehicle_type,
+#             special_request__icontains=driver.special_vehicle_info,
+#             current_passengers_num__lte=driver.max_capacity
+#         )
+#     except Driver.DoesNotExist:
+#         rides = Ride.objects.none()  # No rides to show if the user is not a driver
+
+#     return render(request, 'driver_ride_search.html', {'rides': rides})
+
+# @login_required
+# def driver_ride_search(request):
+#     # Start with no rides
+#     rides = Ride.objects.none()
+
+#     # Check if the user is a driver
+#     try:
+#         driver = Driver.objects.get(user=request.user)
+
+#         # Get all open rides
+#         open_rides = Ride.objects.filter(status=Ride.RideStatus.OPEN)
+
+#         # Filter rides that either have no vehicle_type requirement or match the driver's vehicle type
+#         rides = open_rides.filter(
+#             current_passengers_num__lte=driver.max_capacity
+#         ).filter(
+#             # Using Q objects to combine queries with OR
+#             Q(vehicle_type='') | Q(vehicle_type__iexact=driver.vehicle_type),
+#             # Matching special requests
+#             Q(special_request='') | Q(special_request__icontains=driver.special_vehicle_info)
+#         )
+
+#     except Driver.DoesNotExist:
+#         # If the user is not a driver, show no rides
+#         pass
+
+#     return render(request, 'driver_ride_search.html', {'rides': rides})
+
 @login_required
 def driver_ride_search(request):
     try:
         driver = Driver.objects.get(user=request.user)
-        rides = Ride.objects.filter(
-            status=Ride.RideStatus.OPEN,
-            vehicle_type__icontains=driver.vehicle_type,
-            special_request__icontains=driver.special_vehicle_info,
-            current_passengers_num__lte=driver.max_capacity
+
+        # Exclude rides where the driver is the owner or a sharer
+        excluded_ride_ids = set(
+            Ride.objects.filter(owner=driver.user).values_list('id', flat=True)
         )
+        excluded_ride_ids.update(
+            Ridesharer.objects.filter(sharer=driver.user).values_list('ride_id', flat=True)
+        )
+
+        # Filter open rides that are not in the excluded list
+        rides = Ride.objects.filter(
+            status=Ride.RideStatus.OPEN
+        ).exclude(
+            id__in=excluded_ride_ids
+        ).filter(
+            current_passengers_num__lte=driver.max_capacity,
+            vehicle_type__in=['', driver.vehicle_type],
+            special_request__in=['', driver.special_vehicle_info]
+        )
+
     except Driver.DoesNotExist:
         rides = Ride.objects.none()  # No rides to show if the user is not a driver
 
@@ -299,11 +360,24 @@ def claim_ride(request, ride_id):
         # Handle exceptions or redirect to an error page
         return redirect('error_page')
 
-def send_ride_notification_email(ride, subject):
-    recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
-    message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
-    send_mail(subject, message, 'from@example.com', recipient_list)
+# def send_ride_notification_email(ride, subject):
+#     try:
+#         recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
+#         message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
+#         #send_mail(subject, message, 'from@example.com', recipient_list)
+#         send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
+#     except Exception as e:  # Catch all exceptions related to send_mail
+#         return redirect('error_page')
     
+logger = logging.getLogger(__name__)
+
+def send_ride_notification_email(ride, subject):
+    try:
+        recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
+        message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
+        send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
+    except Exception as e:  # Catch all exceptions related to send_mail
+        logger.error(f"Failed to send email notification: {e}")
     
 
 # @login_required

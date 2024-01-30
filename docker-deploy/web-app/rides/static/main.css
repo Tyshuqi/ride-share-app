@@ -1,0 +1,28 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.top-right-corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+}
+
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+}
+
+a {
+    margin: 5px;
+}
+
+
+    

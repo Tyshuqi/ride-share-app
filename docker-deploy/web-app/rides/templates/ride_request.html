@@ -1,8 +1,12 @@
 <!-- ride_request.html -->
 
 {% extends 'base.html' %}
+<html lang="en"></html>
 
 {% block content %}
+  <div class="top-left-corner">
+    <a href="{% url 'ride_home' %}">Home</a>
+  </div>
   <h2>Request a Ride</h2>
   <form method="post">
     {% csrf_token %}

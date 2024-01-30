@@ -3,6 +3,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="top-left-corner">
+  <a href="{% url 'ride_home' %}">Home</a>
+</div>
   <h2>Edit Ride</h2>
   <form method="post">
     {% csrf_token %}

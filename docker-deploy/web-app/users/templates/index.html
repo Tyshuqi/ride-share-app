@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<header>
-    <h1>Welcome to My Website</h1>
-</header>
+<div class="centered-content">
+    <header>
+        <h1>Welcome to My Website</h1>
+    </header>
 
-<main>
-    <p>This is the content of the Home Page.</p>
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'signup' %}">Sign Up</a>
-</main>
+    <main>
+        <p>This is the content of the Home Page.</p>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">Sign Up</a>
+    </main>
+</div>
 {% endblock %}
+
+
+

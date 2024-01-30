@@ -3,8 +3,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  
+  <div class="top-left-corner">
+    <a href="{% url 'ride_home' %}">Ride Home</a>
+  </div>
+  <div class="top-left-corner">
+    <a href="{% url 'driver_home' %}"> Driver Home</a>
+  </div>
   <h2>Your Confirmed Rides</h2>
-
   {% for ride in rides %}
     <div>
       <p>Ride to: {{ ride.destination }} on {{ ride.arrive_time }}</p>
