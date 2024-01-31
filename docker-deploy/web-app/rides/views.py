@@ -49,11 +49,11 @@ class RideRequestView(LoginRequiredMixin, CreateView):
 @login_required
 def view_rides(request):
     # Fetch rides where the current user is the owner
-    owned_rides = Ride.objects.filter(owner=request.user)
+    owned_rides = Ride.objects.filter(owner=request.user).exclude(status=Ride.RideStatus.COMPLETE)
 
     # Fetch rides where the current user is a sharer
     shared_rides_ids = Ridesharer.objects.filter(sharer=request.user).values_list('ride', flat=True)
-    shared_rides = Ride.objects.filter(id__in=shared_rides_ids)
+    shared_rides = Ride.objects.filter(id__in=shared_rides_ids).exclude(status=Ride.RideStatus.COMPLETE)
 
     context = {
         'owned_rides': owned_rides,
@@ -85,10 +85,10 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 
-@login_required
-def join_ride(request):
-    # Add your logic here
-    return render(request, 'join_ride.html')
+# @login_required
+# def join_ride(request):
+#     # Add your logic here
+#     return render(request, 'join_ride.html')
 
 
 # views.py
@@ -210,12 +210,17 @@ def search_rides(request):
         earliest_arrive = search_form.cleaned_data['earliest_arrive']
         latest_arrive = search_form.cleaned_data['latest_arrive']
 
+        user_rides_ids = Ride.objects.filter(
+            Q(owner=request.user) | Q(sharers__sharer=request.user)
+        ).values_list('id', flat=True)
+
         rides = Ride.objects.filter(
             status='OPEN',
+            can_be_shared = True,
             destination=destination,
             arrive_time__gte=earliest_arrive,
             arrive_time__lte=latest_arrive
-        )
+        ).exclude(id__in=user_rides_ids)
 
     return render(request, 'search_rides.html', {'form': search_form, 'rides': rides})
 
@@ -232,6 +237,8 @@ def join_ride(request, ride_id):
         # Assuming Ridesharer has fields for earliest_arrive_date and latest_arrive_date
         Ridesharer.objects.create(ride=ride, sharer=request.user, earliest_arrive_date=earliest_arrive, latest_arrive_date=latest_arrive, passenger_num=passenger_num)
         # update ride
+        # if ride.total_passengers == 0:
+        #     ride.total_passengers = ride.current_passengers_num
         ride.current_passengers_num +=  passenger_num
         ride.save() 
         
@@ -318,6 +325,7 @@ def driver_ride_search(request):
         excluded_ride_ids = set(
             Ride.objects.filter(owner=driver.user).values_list('id', flat=True)
         )
+
         excluded_ride_ids.update(
             Ridesharer.objects.filter(sharer=driver.user).values_list('ride_id', flat=True)
         )
@@ -340,24 +348,51 @@ def driver_ride_search(request):
 
 
 
+# @login_required
+# def claim_ride(request, ride_id):
+#     try:
+#         driver = Driver.objects.get(user=request.user)
+#         ride = Ride.objects.get(id=ride_id, status=Ride.RideStatus.OPEN)
 
-@login_required
+
+#         # update ride
+#         ride.driver = driver
+#         ride.status = Ride.RideStatus.CONFIRMED
+#         ride.save()
+
+#         # Send notification about claiming the ride
+#         send_ride_notification_email(ride, 'Ride Claimed Notification')
+
+#         # Redirect to a success page or driver's dashboard
+#         return redirect('view_confirmed_rides')
+#     except (Ride.DoesNotExist, Driver.DoesNotExist):
+#         # Handle exceptions or redirect to an error page
+#         return redirect('error_page')
+
 def claim_ride(request, ride_id):
-    try:
-        driver = Driver.objects.get(user=request.user)
-        ride = Ride.objects.get(id=ride_id, status=Ride.RideStatus.OPEN)
+    # Retrieve the driver and ride, or show 404 if not found
+    driver = get_object_or_404(Driver, user=request.user)
+    ride = get_object_or_404(Ride, id=ride_id)
 
+    # Check if the ride meets the specified conditions
+    if ride.status == Ride.RideStatus.OPEN and \
+       ride.current_passengers_num <= driver.max_capacity and \
+       ride.vehicle_type in ['', driver.vehicle_type] and \
+       ride.special_request in ['', driver.special_vehicle_info]:
+
+        # Update ride details
         ride.driver = driver
         ride.status = Ride.RideStatus.CONFIRMED
         ride.save()
 
         # Send notification about claiming the ride
+        # Assuming send_ride_notification_email is defined elsewhere
         send_ride_notification_email(ride, 'Ride Claimed Notification')
 
         # Redirect to a success page or driver's dashboard
         return redirect('view_confirmed_rides')
-    except (Ride.DoesNotExist, Driver.DoesNotExist):
-        # Handle exceptions or redirect to an error page
+    else:
+        # Redirect to an error page if conditions are not met
         return redirect('error_page')
 
 # def send_ride_notification_email(ride, subject):
@@ -406,3 +441,38 @@ def complete_ride(request, ride_id):
 
     # Redirect back if not a POST request
     return redirect('view_confirmed_rides')
+
+@login_required
+def owner_ride_details(request, ride_id):
+    ride = get_object_or_404(Ride, pk=ride_id)
+    return render(request, 'owner_ride_details.html', {'ride': ride})
+
+@login_required
+def sharer_ride_details(request, ride_id):
+
+    ride = get_object_or_404(Ride, pk=ride_id)
+    sharer = get_object_or_404(Ridesharer, ride=ride, sharer=request.user)
+
+    # Check if the user is actually a sharer of this ride.
+    if not sharer:
+        return redirect('error_page')
+
+    context = {
+        'ride': ride,
+        'sharer': sharer,
+    }
+
+    return render(request, 'sharer_ride_details.html', context)
+
+
+@login_required
+def driver_ride_details(request, ride_id):
+    ride = get_object_or_404(Ride, pk=ride_id, driver__user=request.user)
+
+    context = {
+        'ride': ride
+    }
+    return render(request, 'driver_ride_details.html', context)
+
+def error_page(request):
+    return render(request, 'error_page.html')

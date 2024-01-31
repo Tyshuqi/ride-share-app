@@ -15,7 +15,8 @@ class Ride(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name='driven_rides')
     destination = models.CharField(max_length=512)
     arrive_time = models.DateTimeField()
-    current_passengers_num = models.PositiveIntegerField(default=1)
+    current_passengers_num = models.PositiveIntegerField(default=1) #owner passenger
+    # total_passengers = models.PositiveIntegerField(default=0)
     vehicle_type = models.CharField(max_length=128, blank=True)
     special_request = models.TextField(blank=True)
     can_be_shared = models.BooleanField(default=False)

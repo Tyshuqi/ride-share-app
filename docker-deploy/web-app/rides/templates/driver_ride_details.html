@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="top-left-corner">
+    <a href="{% url 'ride_home' %}">Ride Home</a>
+    <a href="{% url 'driver_home' %}"> Driver Home</a>
+  </div>
+  
+    
+  <div class="driver-ride-detail">
+    <h2>Comfirmed Ride Details</h2>
+    <p><strong>You are the driver of this ride request.</strong></p>
+    <hr>
+
+    <h3>Ride Details</h3>
+    <p><strong>Owner:</strong> {{ ride.owner.username }}</p>
+    <p><strong>Destination:</strong> {{ ride.destination }}</p>
+    <p><strong>Arrive Time:</strong> {{ ride.arrive_time }}</p>
+    <p><strong>Current Passengers Number (total):</strong> {{ ride.current_passengers_num }}</p>
+    <p><strong>Special Requests:</strong> {{ ride.special_request }}</p>
+    <p><strong>Can Be Shared:</strong> {{ ride.can_be_shared|yesno:"Yes,No" }}</p>
+    <p><strong>Status:</strong> {{ ride.status }}</p>
+    
+
+    {% if ride.sharers.all %}
+      <h3>Ridesharers</h3>
+      {% for sharer in ride.sharers.all %}
+        <p><strong>Sharer:</strong> {{ sharer.sharer.username }} - Passengers: {{ sharer.passenger_num }}</p>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Add more details or actions as required -->
+
+  </div>
+{% endblock %}

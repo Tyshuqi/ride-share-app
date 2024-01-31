@@ -1,0 +1,19 @@
+<!-- error_page.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="top-left-corner">
+    <a href="{% url 'ride_home' %}">Ride Home</a>
+    <a href="{% url 'driver_home' %}">Driver Home</a>
+  </div>
+
+    
+
+  <div class="error-page">
+
+    <h2>Error</h2>
+    <p>Sorry, the ride request has been updated. Please return to Ride Search.</p>
+    <a href="{% url 'driver_ride_search' %}">Return to Ride Search</a> 
+  </div>
+{% endblock %}

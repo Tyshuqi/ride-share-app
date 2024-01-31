@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="top-left-corner">
+    <a href="{% url 'ride_home' %}">Home</a>
+  </div>
+  <div class="sharer-ride-details">
+    <h2>Ride Sharer Details</h2>
+    <p><strong>You are the sharer of this ride request.</strong></p>
+
+    <!-- <p><strong>Sharer:</strong> {{ sharer.user.username }}</p>
+    <p><strong>Passenger Number:</strong> {{ sharer.passenger_num }}</p> -->
+
+    <hr>
+
+    <h3>Ride Details</h3>
+    <p><strong>Owner:</strong> {{ ride.owner.username }}</p>
+    <p><strong>Destination:</strong> {{ ride.destination }}</p>
+    <p><strong>Arrive Time:</strong> {{ ride.arrive_time }}</p>
+    <p><strong>Current Passengers Number (total):</strong> {{ ride.current_passengers_num }}</p>
+    <p><strong>Special Request:</strong> {{ ride.special_request }}</p>
+    <p><strong>Can be Shared:</strong> {{ ride.can_be_shared|yesno:"Yes,No" }}</p>
+    <p><strong>Status:</strong> {{ ride.status }}</p>
+    
+    
+    <h3>Ridesharers</h3>
+    {% for sharer in ride.sharers.all %}
+      <p><strong>Sharer:</strong> {{ sharer.sharer.username }} - Passengers: {{ sharer.passenger_num }}</p>
+      <!-- <p><strong>Passengers Number of Sharer:</strong> {{ sharer.passenger_num }}</p> -->
+    {% empty %}
+      <p>No sharers yet.</p>
+    {% endfor %}
+
+    {% if ride.status == 'CONFIRMED' %}
+      <hr>
+      <h3>Driver Details</h3>
+      <p><strong>Driver:</strong> {{ ride.driver.user.username }}</p>
+      <p><strong>License Number:</strong> {{ ride.driver.license_number }}</p>
+      <p><strong>Vehicle Type:</strong> {{ ride.driver.vehicle_type }}</p>
+      <p><strong>Max Capacity:</strong> {{ ride.driver.max_capacity }}</p>
+      <p><strong>Special Vehicle Info:</strong> {{ ride.driver.special_vehicle_info }}</p>
+    {% endif %}
+  </div>
+{% endblock %}

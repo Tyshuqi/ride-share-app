@@ -15,6 +15,7 @@
     {% if ride.status != 'CONFIRMED' %}
       <a href="{% url 'ride_edit' pk=ride.pk %}" class="btn btn-primary">Edit</a>
     {% endif %}
+    <a href="{% url 'owner_ride_details' ride_id=ride.pk %}" class="btn btn-secondary">View details</a>
   </p>
 {% empty %}
   <p>You have no rides as an owner.</p>
@@ -23,7 +24,7 @@
 <h3>As Sharer</h3>
 {% for ride in shared_rides %}
   <p>Ride to {{ ride.destination }} on {{ ride.arrive_time }}, request status: {{ ride.status }}, Passengers:{{ride.current_passengers_num}}</p>
-  <!-- Add more ride details as needed -->
+  <a href="{% url 'sharer_ride_details' ride_id=ride.pk %}" class="btn btn-secondary">View details</a>
 {% empty %}
   <p>You are not sharing any rides.</p>
 {% endfor %}

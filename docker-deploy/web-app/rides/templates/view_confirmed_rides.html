@@ -6,26 +6,28 @@
   
   <div class="top-left-corner">
     <a href="{% url 'ride_home' %}">Ride Home</a>
-  </div>
-  <div class="top-left-corner">
     <a href="{% url 'driver_home' %}"> Driver Home</a>
   </div>
+
+    
+
   <h2>Your Confirmed Rides</h2>
   {% for ride in rides %}
     <div>
-      <p>Ride to: {{ ride.destination }} on {{ ride.arrive_time }}</p>
-      <p>Owner: {{ ride.owner.username }} - Passengers: {{ ride.current_passengers_num }}</p>
+      <p>Ride to: {{ ride.destination }} on {{ ride.arrive_time }}, Owner: {{ ride.owner.username }} - Total Passengers: {{ ride.current_passengers_num }}
       
       <!-- Displaying sharers information -->
-      {% for sharer in ride.sharers.all %}
+      <!-- {% for sharer in ride.sharers.all %}
         <p>Sharer: {{ sharer.sharer.username }} - Passengers: {{ sharer.passenger_num }}</p>
-      {% endfor %}
+      {% endfor %} -->
+      
+      <a href="{% url 'driver_ride_details' ride.id %}" class="button">View Details</a>
 
       <!-- Button to mark ride as complete -->
       <form action="{% url 'complete_ride' ride.id %}" method="post">
         {% csrf_token %}
         <button type="submit">Mark as Complete</button>
-      </form>
+      </form></p>
     </div>
   {% empty %}
     <p>You have no confirmed rides.</p>
