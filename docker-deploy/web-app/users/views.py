@@ -16,9 +16,9 @@ from django.contrib import messages
 def home(request):
     return render(request, 'index.html')
 
-@login_required
-def profile(request):
-    return render(request, 'user_info.html')
+# @login_required
+# def profile(request):
+#     return render(request, 'user_info.html')
 
 def signup(request):
     if request.method == 'POST':
@@ -45,18 +45,6 @@ def user_info(request):
     }
     return render(request, 'user_info.html', context)
 
-# @login_required
-# def register_driver(request):
-#     if request.method == 'POST':
-#         form = DriverRegistrationForm(request.POST)
-#         if form.is_valid():
-#             driver = form.save(commit=False)
-#             driver.user = request.user
-#             driver.save()
-#             return redirect('user_info')  # Redirect to a success page or profile page
-#     else:
-#         form = DriverRegistrationForm()
-#     return render(request, 'register_driver.html', {'form': form})
 
 @login_required
 def register_driver(request):
@@ -86,7 +74,6 @@ def update_user_info(request):
         user_form = UserUpdateForm(request.POST, instance=request.user)
         if user_form.is_valid():
             user_form.save()
-            # Add a success message or redirect
             return redirect('user_info')
 
     else:

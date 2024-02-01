@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views  # Import your app's views
 from .views import register_driver, update_user_info, update_driver_info # Import the view here
-from .views import home
+from .views import home, user_info
 
 urlpatterns = [
     # ... your other url patterns ...
@@ -16,10 +16,10 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     
     #URL for driver register
-    path('register-driver/', views.register_driver, name='register_driver'),
+    path('register-driver/', register_driver, name='register_driver'),
     
     #URL for usrs_info_list
-    path('user-info/', views.user_info, name='user_info'),
+    path('user-info/', user_info, name='user_info'),
     
     path('update-user-info/', update_user_info, name='update_user_info'),
     path('update-driver-info/', update_driver_info, name='update_driver_info'),

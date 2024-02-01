@@ -3,10 +3,14 @@ version: '2'
 services:
   db:
       image: postgres
+      # environment:
+      #   - POSTGRES_DB=postgres
+      #   - POSTGRES_USER=postgres
+      #   - POSTGRES_PASSWORD=postgres
       environment:
-        - POSTGRES_DB=postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=ss1481  
+      - POSTGRES_PASSWORD=2108  
       volumes:
             - data-volume:/var/lib/postgresql/data
   web-init:

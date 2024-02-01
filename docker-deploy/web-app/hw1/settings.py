@@ -15,7 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-LOGIN_REDIRECT_URL = 'ride_home'  # Assuming the name of your profile URL is 'profile'
+LOGIN_REDIRECT_URL = 'ride_home'  
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -26,7 +26,13 @@ SECRET_KEY = 'django-insecure-u$c4+jy58#6*leg@=oed))w2$r^_ov4gifa7t%p0=we_^t!*g-
 DEBUG = True
 
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+#local
+#ALLOWED_HOSTS = ['localhost', '127.0.0.1','web']
+#docker
+ALLOWED_HOSTS = ['web', '127.0.0.1', '0.0.0.0']
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8000']
+
+STATIC_URL = '/static/'
 
 
 # Application definition
@@ -84,16 +90,30 @@ WSGI_APPLICATION = 'hw1.wsgi.application'
 #     }
 # }
 
+#local test
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'ss1481',
+#         'PASSWORD': '2108',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
+
+#docker
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'xh13503',
-        'USER': 'xh135',
-        'PASSWORD': '010131',
-        'HOST': '127.0.0.1',
+        'NAME': 'postgres',
+        'USER': 'ss1481',
+        'PASSWORD': '2108',
+        'HOST': 'db',  # Use the service name defined in docker-compose.yml
         'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -148,10 +168,23 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'your-email@example.com'
 # EMAIL_HOST_PASSWORD = 'your-password'
-EMAIL_HOST_USER = 'shuqishen27@gmail.com'
-EMAIL_HOST_PASSWORD = 'Liunianqi2@'
+EMAIL_HOST_USER = 'hw1rideshare@gmail.com'
+EMAIL_HOST_PASSWORD = 'gzen nymd gjbg glej'
 
-STATIC_URL = '/static/'
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {  # root logger
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    },
+}
 
 

@@ -17,6 +17,7 @@ from django.db.models import Q
 import logging
 
 
+from django.conf import settings  # Make sure to import settings
 
 
 
@@ -35,14 +36,6 @@ class RideRequestView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user  # Set the owner of the ride to the current user
         return super().form_valid(form)
-
-
-
-# @login_required
-# def ride_request(request):
-#     # Add your logic here
-#     return render(request, 'ride_request.html')
-
 
 
 
@@ -70,9 +63,6 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     context_object_name = 'ride'
     success_url = reverse_lazy('view_rides')  # Redirect to 'ride_home' after a successful request
 
-    # def get_success_url(self):
-    #     return reverse_lazy('ride_home', kwargs={'pk': self.object.pk})
-
     def test_func(self):
         ride = self.get_object()
         return ride.owner == self.request.user and ride.status != Ride.RideStatus.CONFIRMED
@@ -83,12 +73,6 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return self.form_invalid(form)
         return super().form_valid(form)
 
-
-
-# @login_required
-# def join_ride(request):
-#     # Add your logic here
-#     return render(request, 'join_ride.html')
 
 
 # views.py
@@ -114,79 +98,6 @@ def search_and_join_ride(request):
         )
 
     return render(request, 'search_and_join_ride.html', {'form': search_form, 'rides': rides})
-
-# @login_required
-# def search_rides(request):
-#     search_form = RideSearchForm(request.POST or None)
-#     rides = Ride.objects.none()
-
-#     if request.method == 'POST' and search_form.is_valid():
-#         destination = search_form.cleaned_data['destination']
-#         earliest_arrive = search_form.cleaned_data['earliest_arrive']
-#         latest_arrive = search_form.cleaned_data['latest_arrive']
-#         passenger_num = search_form.cleaned_data['passenger_num']
-
-#         rides = Ride.objects.filter(
-#             status='OPEN',
-#             destination=destination,
-#             arrive_time__gte=earliest_arrive,
-#             arrive_time__lte=latest_arrive
-#         )
-
-#     return render(request, 'search_rides.html', {'form': search_form, 'rides': rides})
-
-
-# @login_required
-# def join_ride(request, ride_id):
-#     if request.method == 'POST':
-        
-#         ride = Ride.objects.get(id=ride_id)
-#         Ridesharer.objects.create(ride=ride, sharer=request.user)  # Assuming other fields are handled
-#         return redirect('some_success_view')  # Redirect to a success or confirmation page
-
-#     return redirect('search_rides')  # Redirect back to the search page if not a POST request
-
-
-# @login_required
-# def search_rides(request):
-#     search_form = RideSearchForm(request.POST or None)
-#     rides = Ride.objects.none()
-
-#     if request.method == 'POST' and search_form.is_valid():
-#         # Save form data to session for later use in join_ride
-#         request.session['search_data'] = search_form.cleaned_data
-
-#         destination = search_form.cleaned_data['destination']
-#         earliest_arrive = search_form.cleaned_data['earliest_arrive']
-#         latest_arrive = search_form.cleaned_data['latest_arrive']
-
-#         rides = Ride.objects.filter(
-#             status='OPEN',
-#             destination=destination,
-#             arrive_time__gte=earliest_arrive,
-#             arrive_time__lte=latest_arrive
-#         )
-
-#     return render(request, 'search_rides.html', {'form': search_form, 'rides': rides})
-
-
-# @login_required
-# def join_ride(request, ride_id):
-#     if request.method == 'POST':
-#         ride = Ride.objects.get(id=ride_id)
-        
-#         # Retrieve search form data from the session
-#         search_data = request.session.get('search_data', {})
-#         earliest_arrive = parse_datetime(search_data.get('earliest_arrive')) if search_data.get('earliest_arrive') else None
-#         latest_arrive = parse_datetime(search_data.get('latest_arrive')) if search_data.get('latest_arrive') else None
-
-#         passenger_num =  search_data.get('passenger_num')
-
-#         Ridesharer.objects.create(ride, request.user, earliest_arrive_date, latest_arrive_date, passenger_num)
-        
-#         return redirect('view_rides')
-
-#     return redirect('search_rides')
 
 
 
@@ -261,60 +172,6 @@ def driver_home(request):
     return render(request, 'driver_home.html')
 
 
-# @login_required
-# def offer_ride(request):
-#     # Add your logic here
-#     return render(request, 'offer_ride.html')
-
-# @login_required
-# def ride_search(request):
-#     # Add your logic here
-#     return render(request, 'ride_search.html')
-
-
-
-# @login_required
-# def driver_ride_search(request):
-#     try:
-#         driver = Driver.objects.get(user=request.user)
-#         rides = Ride.objects.filter(
-#             status=Ride.RideStatus.OPEN,
-#             vehicle_type__icontains=driver.vehicle_type,
-#             special_request__icontains=driver.special_vehicle_info,
-#             current_passengers_num__lte=driver.max_capacity
-#         )
-#     except Driver.DoesNotExist:
-#         rides = Ride.objects.none()  # No rides to show if the user is not a driver
-
-#     return render(request, 'driver_ride_search.html', {'rides': rides})
-
-# @login_required
-# def driver_ride_search(request):
-#     # Start with no rides
-#     rides = Ride.objects.none()
-
-#     # Check if the user is a driver
-#     try:
-#         driver = Driver.objects.get(user=request.user)
-
-#         # Get all open rides
-#         open_rides = Ride.objects.filter(status=Ride.RideStatus.OPEN)
-
-#         # Filter rides that either have no vehicle_type requirement or match the driver's vehicle type
-#         rides = open_rides.filter(
-#             current_passengers_num__lte=driver.max_capacity
-#         ).filter(
-#             # Using Q objects to combine queries with OR
-#             Q(vehicle_type='') | Q(vehicle_type__iexact=driver.vehicle_type),
-#             # Matching special requests
-#             Q(special_request='') | Q(special_request__icontains=driver.special_vehicle_info)
-#         )
-
-#     except Driver.DoesNotExist:
-#         # If the user is not a driver, show no rides
-#         pass
-
-#     return render(request, 'driver_ride_search.html', {'rides': rides})
 
 @login_required
 def driver_ride_search(request):
@@ -348,27 +205,6 @@ def driver_ride_search(request):
 
 
 
-# @login_required
-# def claim_ride(request, ride_id):
-#     try:
-#         driver = Driver.objects.get(user=request.user)
-#         ride = Ride.objects.get(id=ride_id, status=Ride.RideStatus.OPEN)
-
-
-#         # update ride
-#         ride.driver = driver
-#         ride.status = Ride.RideStatus.CONFIRMED
-#         ride.save()
-
-#         # Send notification about claiming the ride
-#         send_ride_notification_email(ride, 'Ride Claimed Notification')
-
-#         # Redirect to a success page or driver's dashboard
-#         return redirect('view_confirmed_rides')
-#     except (Ride.DoesNotExist, Driver.DoesNotExist):
-#         # Handle exceptions or redirect to an error page
-#         return redirect('error_page')
-
 def claim_ride(request, ride_id):
     # Retrieve the driver and ride, or show 404 if not found
     driver = get_object_or_404(Driver, user=request.user)
@@ -395,30 +231,37 @@ def claim_ride(request, ride_id):
         # Redirect to an error page if conditions are not met
         return redirect('error_page')
 
+
+    
+# logger = logging.getLogger(__name__)
+
 # def send_ride_notification_email(ride, subject):
 #     try:
-#         recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
+#         recipient_list = [ride.owner.email] 
+#         #+ [sharer.sharer.email for sharer in ride.sharers.all()]
 #         message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
-#         #send_mail(subject, message, 'from@example.com', recipient_list)
-#         send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
+#         send_mail(subject, message, EMAIL_HOST_USER, recipient_list)
 #     except Exception as e:  # Catch all exceptions related to send_mail
-#         return redirect('error_page')
+#         logger.error(f"Failed to send email notification: {e}")
     
-logger = logging.getLogger(__name__)
-
 def send_ride_notification_email(ride, subject):
     try:
+        # Prepare the recipient list
         recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
-        message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
-        send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
-    except Exception as e:  # Catch all exceptions related to send_mail
-        logger.error(f"Failed to send email notification: {e}")
-    
 
-# @login_required
-# def view_confirmed_rides(request):
-#     # Add your logic here
-#     return render(request, 'view_confirmed_rides.html')
+        # Construct the email message
+        message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
+
+        # Send the email
+        send_mail(subject, message, EMAIL_HOST_USER, recipient_list)
+
+        # Return a success message
+        return "Email sent successfully"
+    except Exception as e:
+        # Handle the exception and return an error message
+        error_message = f"Failed to send email notification: {e}"
+        return error_message
+
 
 
 @login_required
