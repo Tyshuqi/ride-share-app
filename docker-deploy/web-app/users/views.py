@@ -1,5 +1,3 @@
-#from django.shortcuts import render
-
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -9,27 +7,27 @@ from .forms import DriverRegistrationForm, UserUpdateForm, DriverUpdateForm
 from .models import Driver
 from django.contrib import messages
 
+from .forms import CustomUserCreationForm
 
-
-# Create your views here.
 
 def home(request):
     return render(request, 'index.html')
 
-# @login_required
-# def profile(request):
-#     return render(request, 'user_info.html')
+
+
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')  # Redirect to login page after signup
-    else:
-        form = UserCreationForm()
-    return render(request, 'signup.html', {'form': form})
+            user = form.save()
 
+            user.email = form.cleaned_data.get('email')
+            user.save()
+            return redirect('login')  
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'signup.html', {'form': form})
 
 @login_required
 def user_info(request):
@@ -50,8 +48,8 @@ def user_info(request):
 def register_driver(request):
     user = request.user
     if Driver.objects.filter(user=user).exists():
-        messages.error(request, "You are already registered as a driver.")
-        return redirect('user_info')  # Redirect to an appropriate page
+        # messages.error(request, "You are already registered as a driver.")
+        return redirect('user_info')  
 
     if request.method == 'POST':
         form = DriverRegistrationForm(request.POST)
@@ -59,8 +57,8 @@ def register_driver(request):
             driver = form.save(commit=False)
             driver.user = user
             driver.save()
-            messages.success(request, "You have been successfully registered as a driver.")
-            return redirect('user_info')  # Redirect to an appropriate page
+            # messages.success(request, "You have been successfully registered as a driver.")
+            return redirect('user_info')  
     else:
         form = DriverRegistrationForm()
 
@@ -94,7 +92,7 @@ def update_driver_info(request):
         driver_form = DriverUpdateForm(request.POST, instance=driver)
         if driver_form.is_valid():
             driver_form.save()
-            # Add a success message or redirect
+            
             return redirect('user_info')
 
     else:

@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-# Create your models here.
-from users.models import Driver  # Import the Driver model from the users app
+from users.models import Driver  
 
 
 class Ride(models.Model):
     class RideStatus(models.TextChoices):
         OPEN = 'OPEN', _('Open')
+        PENDING = 'PENDING', _('Pending')
         CONFIRMED = 'CONFIRMED', _('Confirmed')
         COMPLETE = 'COMPLETE', _('Complete')
 
@@ -15,7 +15,7 @@ class Ride(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name='driven_rides')
     destination = models.CharField(max_length=512)
     arrive_time = models.DateTimeField()
-    current_passengers_num = models.PositiveIntegerField(default=1) #owner passenger
+    current_passengers_num = models.PositiveIntegerField(default=1) 
     # total_passengers = models.PositiveIntegerField(default=0)
     vehicle_type = models.CharField(max_length=128, blank=True)
     special_request = models.TextField(blank=True)

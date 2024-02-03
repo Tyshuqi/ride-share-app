@@ -1,12 +1,11 @@
-<!-- driver_rides.html -->
 
 {% extends 'base.html' %}
 
 {% block content %}
   
   <div class="top-left-corner">
-    <a href="{% url 'ride_home' %}">Ride Home</a>
-    <a href="{% url 'driver_home' %}"> Driver Home</a>
+    <a href="{% url 'ride_home' %}" class = "link2">Ride Home</a>
+    <a href="{% url 'driver_home' %}" class = "link2"> Driver Home</a>
   </div>
 
     
@@ -21,12 +20,12 @@
         <p>Sharer: {{ sharer.sharer.username }} - Passengers: {{ sharer.passenger_num }}</p>
       {% endfor %} -->
       
-      <a href="{% url 'driver_ride_details' ride.id %}" class="button">View Details</a>
+      <a href="{% url 'driver_ride_details' ride.id %}"  class = "link2">View Details</a>
 
       <!-- Button to mark ride as complete -->
       <form action="{% url 'complete_ride' ride.id %}" method="post">
         {% csrf_token %}
-        <button type="submit">Mark as Complete</button>
+        <button type="submit" class = "link2">Mark as Complete</button>
       </form></p>
     </div>
   {% empty %}

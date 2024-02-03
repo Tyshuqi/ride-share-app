@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User  # Import the User model
+from django.contrib.auth.models import User 
 
 # Create your models here.
 class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='driver')
-    license_number = models.CharField(max_length=10, blank=True)
+    license_number = models.CharField(max_length=10)
     vehicle_type = models.CharField(max_length=20, blank=True)
     max_capacity = models.PositiveIntegerField()
     special_vehicle_info = models.TextField(blank=True)

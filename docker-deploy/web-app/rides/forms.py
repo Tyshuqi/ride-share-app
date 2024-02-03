@@ -1,4 +1,3 @@
-# forms.py in your rides app
 
 from django import forms
 from .models import Ride

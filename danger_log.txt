@@ -1,0 +1,23 @@
+01/28
+When the owner set the ride is no-shareable, the other users can still see this ride and join in it.
+
+01/29
+We ingore a problem that driver can find open rides created by themselves.
+
+01/30
+Shares can still see the same rides which they are already in, and join in again.
+
+02/01
+When shares join in the ride, the owner can still edit ride (destination, passenger number and etc), which is unreasonable for sharers if the owner change the destination.
+
+02/03
+Many drivers can claim the same ride, we need to double check the ride status or update it.
+
+02/04
+When a driver confirm a open ride, the owner and sharers can not see the driver's info.
+
+02/05
+The user must fill in the email, because they need to receive ride's confirm email.
+
+02/06
+The driver can omit their license number, which is unreasonable.

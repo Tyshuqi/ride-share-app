@@ -4,8 +4,8 @@
 
 {% block content %}
 <div class="top-left-corner">
-  <a href="{% url 'ride_home' %}">Ride Home</a>
-  <a href="{% url 'driver_home' %}">Driver Home</a>
+  <a href="{% url 'ride_home' %}" class = "link2">Ride Home</a>
+  <a href="{% url 'driver_home' %}" class = "link2">Driver Home</a>
 </div>
 
 
@@ -19,7 +19,7 @@
       <!-- Add a button to claim the ride -->
       <form action="{% url 'claim_ride' ride.id %}" method="post">
         {% csrf_token %}
-        <button type="submit">Claim this Ride</button>
+        <button type="submit" class = "link2">Claim this Ride</button>
       </form>
     </div>
   {% empty %}

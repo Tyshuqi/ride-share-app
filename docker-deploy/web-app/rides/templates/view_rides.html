@@ -1,21 +1,20 @@
-<!-- view_rides.html -->
 
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="top-left-corner">
-  <a href="{% url 'ride_home' %}">Home</a>
+  <a href="{% url 'ride_home' %}" class = "link2">Home</a>
 </div>
-<h2>Your Rides</h2>
+<h1>Your Rides</h1>
 <h3>As Owner</h3>
 {% for ride in owned_rides %}
   <p>
     Ride to {{ ride.destination }} on {{ ride.arrive_time }}, request status: {{ ride.status }}, Passengers:{{ride.current_passengers_num}}
     <!-- Conditionally display the edit button -->
-    {% if ride.status != 'CONFIRMED' %}
-      <a href="{% url 'ride_edit' pk=ride.pk %}" class="btn btn-primary">Edit</a>
+    {% if ride.status == 'OPEN' %}
+      <a href="{% url 'ride_edit' pk=ride.pk %}"  class = "link2">Edit</a>
     {% endif %}
-    <a href="{% url 'owner_ride_details' ride_id=ride.pk %}" class="btn btn-secondary">View details</a>
+    <a href="{% url 'owner_ride_details' ride_id=ride.pk %}"  class = "link2">View details</a>
   </p>
 {% empty %}
   <p>You have no rides as an owner.</p>
@@ -24,7 +23,7 @@
 <h3>As Sharer</h3>
 {% for ride in shared_rides %}
   <p>Ride to {{ ride.destination }} on {{ ride.arrive_time }}, request status: {{ ride.status }}, Passengers:{{ride.current_passengers_num}}</p>
-  <a href="{% url 'sharer_ride_details' ride_id=ride.pk %}" class="btn btn-secondary">View details</a>
+  <a href="{% url 'sharer_ride_details' ride_id=ride.pk %}"  class = "link2">View details</a>
 {% empty %}
   <p>You are not sharing any rides.</p>
 {% endfor %}

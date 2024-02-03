@@ -1,17 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="top-right-corner">
+
+  <div class="navbar">
     <a href="{% url 'user_info' %}">User Info</a>
     <a href="{% url 'home' %}">Log out</a>
   </div>
   <div class="centered-content">
-    <h2>Ride Home</h2>
+    <h1>Ride Home</h1>
     <div>
-      <a href="{% url 'offer_ride' %}">Offer a Ride</a>
-      <a href="{% url 'ride_request' %}">Ride Request</a>
-      <a href="{% url 'view_rides' %}">View Your Rides</a>
-      <a href="{% url 'search_rides' %}">Join a Ride</a>
+      
+      <a href="{% url 'ride_request' %}" class = "link">Ride Request</a>
+      <p class="description">Request a ride as the owner.</p>
+      <br>
+      <a href="{% url 'view_rides' %}" class = "link">View Your Rides</a>
+      <p class="description">Display all your rides.</p>
+      <br>
+      <a href="{% url 'search_rides' %}" class = "link">Join a Ride</a>
+      <p class="description">Join a ride as the Sharer.</p>
+      <br>
+      <a href="{% url 'offer_ride' %}" class = "link">Offer a Ride</a> <p class="description">Register as a driver, and go to the driver-home.</p>
+      <br>
     </div>
   </div>
 {% endblock %}

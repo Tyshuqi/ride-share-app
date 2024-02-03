@@ -7,9 +7,10 @@
     </header>
 
     <main>
-        <p>Enjoy your travelling.</p>
-        <a href="{% url 'login' %}">Login</a>
-        <a href="{% url 'signup' %}">Sign Up</a>
+        <h2>Enjoy your travelling!</h2>
+        <a href="{% url 'login' %}" class = "link">Login</a>
+        <span style="display: inline-block; width: 50px;"></span> <!-- Horizontal space -->
+        <a href="{% url 'signup' %}" class = "link">Sign Up</a>
     </main>
 </div>
 {% endblock %}

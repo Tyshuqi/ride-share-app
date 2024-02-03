@@ -1,15 +1,28 @@
-<!-- driver_home.html -->
 
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="top-left-corner">
+<div class="navbar">
+  <a href="{% url 'ride_home' %}">Ride Home</a>
+  <a href="{% url 'user_info' %}">User Info</a>
+  <a href="{% url 'home' %}">Log out</a>
+</div>
+<!-- <div class="top-left-corner">
   <a href="{% url 'ride_home' %}">Ride Home</a>
   <a href="{% url 'user_info' %}">Info</a>
-</div>
-  <h2>Driver Home</h2>
+</div> -->
+<div class="centered-content">
+  <h1>Driver Home</h1>
   <div>
-    <a href="{% url 'driver_ride_search' %}">Ride Search</a>
-    <a href="{% url 'view_confirmed_rides' %}">View Confirmed Rides</a>
+    
+    <a href="{% url 'driver_ride_search' %}" class = "link">Ride Search</a>
+    <p class="description">Search the ride request.</p>
+    <br>
+    <a href="{% url 'view_confirmed_rides' %}" class = "link">View Confirmed Rides</a>
+    <p class="description">Display all your confirmed rides.</p>
+    <br>
+
   </div>
+</div>
+
 {% endblock %}

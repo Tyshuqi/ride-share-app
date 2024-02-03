@@ -17,13 +17,13 @@ from django.db.models import Q
 import logging
 
 
-from django.conf import settings  # Make sure to import settings
+from django.conf import settings  
 
 
 
 @login_required
 def ride_home(request):
-    # Add your logic here
+    
     return render(request, 'ride_home.html')
 
 
@@ -75,7 +75,7 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 
-# views.py
+# wierd, do not use
 @login_required
 def search_and_join_ride(request):
     
@@ -100,7 +100,7 @@ def search_and_join_ride(request):
     return render(request, 'search_and_join_ride.html', {'form': search_form, 'rides': rides})
 
 
-
+# Sharer search rides
 @login_required
 def search_rides(request):
     search_form = RideSearchForm(request.POST or None)
@@ -126,7 +126,7 @@ def search_rides(request):
         ).values_list('id', flat=True)
 
         rides = Ride.objects.filter(
-            status='OPEN',
+            Q(status='OPEN') | Q(status='PENDING'),
             can_be_shared = True,
             destination=destination,
             arrive_time__gte=earliest_arrive,
@@ -145,12 +145,13 @@ def join_ride(request, ride_id):
         latest_arrive = parse_datetime(search_data.get('latest_arrive')) if search_data.get('latest_arrive') else None
         passenger_num = search_data.get('passenger_num')
 
-        # Assuming Ridesharer has fields for earliest_arrive_date and latest_arrive_date
+        
         Ridesharer.objects.create(ride=ride, sharer=request.user, earliest_arrive_date=earliest_arrive, latest_arrive_date=latest_arrive, passenger_num=passenger_num)
         # update ride
         # if ride.total_passengers == 0:
         #     ride.total_passengers = ride.current_passengers_num
         ride.current_passengers_num +=  passenger_num
+        ride.status = Ride.RideStatus.PENDING
         ride.save() 
         
         return redirect('view_rides')
@@ -187,9 +188,9 @@ def driver_ride_search(request):
             Ridesharer.objects.filter(sharer=driver.user).values_list('ride_id', flat=True)
         )
 
-        # Filter open rides that are not in the excluded list
+        # Filter open / pending rides that are not in the excluded list
         rides = Ride.objects.filter(
-            status=Ride.RideStatus.OPEN
+            Q(status=Ride.RideStatus.OPEN) | Q(status=Ride.RideStatus.PENDING)
         ).exclude(
             id__in=excluded_ride_ids
         ).filter(
@@ -211,7 +212,7 @@ def claim_ride(request, ride_id):
     ride = get_object_or_404(Ride, id=ride_id)
 
     # Check if the ride meets the specified conditions
-    if ride.status == Ride.RideStatus.OPEN and \
+    if (ride.status == Ride.RideStatus.OPEN or ride.status == Ride.RideStatus.PENDING) and \
        ride.current_passengers_num <= driver.max_capacity and \
        ride.vehicle_type in ['', driver.vehicle_type] and \
        ride.special_request in ['', driver.special_vehicle_info]:
@@ -222,10 +223,8 @@ def claim_ride(request, ride_id):
         ride.save()
 
         # Send notification about claiming the ride
-        # Assuming send_ride_notification_email is defined elsewhere
         send_ride_notification_email(ride, 'Ride Claimed Notification')
 
-        # Redirect to a success page or driver's dashboard
         return redirect('view_confirmed_rides')
     else:
         # Redirect to an error page if conditions are not met
@@ -279,7 +278,6 @@ def complete_ride(request, ride_id):
         ride.status = Ride.RideStatus.COMPLETE
         ride.save()
 
-        # Redirect to the driver's confirmed rides page
         return redirect('driver_home')
 
     # Redirect back if not a POST request

@@ -1,6 +1,16 @@
 from django import forms
 from .models import Driver
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields + ('email',)
+
 
 class DriverRegistrationForm(forms.ModelForm):
     class Meta:

@@ -1,17 +1,17 @@
-<!-- ride_request.html -->
+
 
 {% extends 'base.html' %}
 <html lang="en"></html>
 
 {% block content %}
   <div class="top-left-corner">
-    <a href="{% url 'ride_home' %}">Home</a>
+    <a href="{% url 'ride_home' %}" class = "link2">Home</a>
   </div>
   <h2>Request a Ride</h2>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Request Ride</button>
+    <button type="submit" class = "link2">Request Ride</button>
   </form>
 {% endblock %}
 
