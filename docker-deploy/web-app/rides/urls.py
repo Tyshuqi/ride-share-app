@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import ride_home, offer_ride, view_rides, search_rides, join_ride, RideRequestView, RideEditView, search_and_join_ride
+from .views import ride_home, offer_ride, view_rides, search_rides, join_ride, RideRequestView, RideEditView
 from .views import driver_home, view_confirmed_rides, driver_ride_search, claim_ride, complete_ride, owner_ride_details, sharer_ride_details, driver_ride_details, error_page
-
+#2.5 add
+from .views import sharer_ride_edit
 
 urlpatterns = [
     # ... other patterns ...
@@ -28,6 +29,10 @@ urlpatterns = [
     path('driver-ride-details/<int:ride_id>/', driver_ride_details, name='driver_ride_details'),
     #path('driver-rides/', view_driver_rides, name='view_driver_rides'),
     path('complete-ride/<int:ride_id>/', complete_ride, name='complete_ride'),
+    
+    
+    #2.5 add
+    path('edit-sharer/<int:ride_id>/', sharer_ride_edit, name='edit_sharer'),
     
 ]
 

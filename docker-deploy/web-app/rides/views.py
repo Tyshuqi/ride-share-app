@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from .forms import RideRequestForm
+from .forms import RideRequestForm,EditRideSharerForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Ride, Ridesharer
 from django.views.generic.edit import UpdateView
@@ -13,11 +13,12 @@ from users.models import Driver
 
 from django.core.mail import send_mail
 
-from django.db.models import Q
+from django.db.models import Q, F
 import logging
 
 
 from django.conf import settings  
+from django.contrib import messages
 
 
 
@@ -73,31 +74,39 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return self.form_invalid(form)
         return super().form_valid(form)
 
-
-
-# wierd, do not use
+#2.5 add sharer edit the passenger num
 @login_required
-def search_and_join_ride(request):
-    
+def sharer_ride_edit(request, ride_id):
+#     ridesharer = get_object_or_404(Ridesharer, ride_id=ride_id, sharer=request.user)
+#     if request.method == 'POST':
+#         form = EditRideSharerForm(request.POST, instance=ridesharer)
+#         if form.is_valid():
+#             form.save()
+    ridesharer = get_object_or_404(Ridesharer, ride_id=ride_id, sharer=request.user)
+    initial_passenger_num = ridesharer.passenger_num  # Store the initial passenger number
 
-    search_form = RideSearchForm(request.POST or None)
-    rides = Ride.objects.none()
+    if request.method == 'POST':
+        form = EditRideSharerForm(request.POST, instance=ridesharer)
+        if form.is_valid():
+            updated_ridesharer = form.save(commit=False)  # Save the form to get updated data without committing to DB
+            updated_passenger_num = updated_ridesharer.passenger_num  # Get the updated passenger number
 
-    if request.method == 'POST' and 'search' in request.POST and search_form.is_valid():
-        # Filtering logic for rides
-        destination = search_form.cleaned_data['destination']
-        earliest_arrive = search_form.cleaned_data['earliest_arrive']
-        latest_arrive = search_form.cleaned_data['latest_arrive']
-        passenger_num = search_form.cleaned_data['passenger_num']
-        
-        rides = Ride.objects.filter(
-            status='OPEN',
-            destination=destination,
-            arrive_time__gte=earliest_arrive,
-            arrive_time__lte=latest_arrive,
-        )
+            passenger_num_difference = updated_passenger_num - initial_passenger_num
 
-    return render(request, 'search_and_join_ride.html', {'form': search_form, 'rides': rides})
+            # Update Ride's current_passengers_num with the difference
+            ride = ridesharer.ride  
+            ride.current_passengers_num = F('current_passengers_num') + passenger_num_difference
+            ride.save()
+
+            form.save()  
+            messages.success(request, "Ride request updated successfully.")
+            return redirect('view_rides') 
+    else:
+        form = EditRideSharerForm(instance=ridesharer)
+
+    return render(request, 'edit_ride_sharer.html', {'form': form})
+
+
 
 
 # Sharer search rides
@@ -112,7 +121,8 @@ def search_rides(request):
             'destination': search_form.cleaned_data['destination'],
             'earliest_arrive': search_form.cleaned_data['earliest_arrive'].isoformat() if search_form.cleaned_data['earliest_arrive'] else None,
             'latest_arrive': search_form.cleaned_data['latest_arrive'].isoformat() if search_form.cleaned_data['latest_arrive'] else None,
-            'passenger_num': search_form.cleaned_data['passenger_num']
+            'passenger_num': search_form.cleaned_data['passenger_num'],
+            'special_request': search_form.cleaned_data['special_request']
         }
 
         request.session['search_data'] = search_data
@@ -120,6 +130,7 @@ def search_rides(request):
         destination = search_form.cleaned_data['destination']
         earliest_arrive = search_form.cleaned_data['earliest_arrive']
         latest_arrive = search_form.cleaned_data['latest_arrive']
+        special_request = search_form.cleaned_data['special_request']
 
         user_rides_ids = Ride.objects.filter(
             Q(owner=request.user) | Q(sharers__sharer=request.user)
@@ -130,10 +141,14 @@ def search_rides(request):
             can_be_shared = True,
             destination=destination,
             arrive_time__gte=earliest_arrive,
-            arrive_time__lte=latest_arrive
+            arrive_time__lte=latest_arrive,
+            special_request=special_request
+            
         ).exclude(id__in=user_rides_ids)
 
     return render(request, 'search_rides.html', {'form': search_form, 'rides': rides})
+
+
 
 @login_required
 def join_ride(request, ride_id):
@@ -144,9 +159,10 @@ def join_ride(request, ride_id):
         earliest_arrive = parse_datetime(search_data.get('earliest_arrive')) if search_data.get('earliest_arrive') else None
         latest_arrive = parse_datetime(search_data.get('latest_arrive')) if search_data.get('latest_arrive') else None
         passenger_num = search_data.get('passenger_num')
+        special_request = search_data.get('special_request') 
 
         
-        Ridesharer.objects.create(ride=ride, sharer=request.user, earliest_arrive_date=earliest_arrive, latest_arrive_date=latest_arrive, passenger_num=passenger_num)
+        Ridesharer.objects.create(ride=ride, sharer=request.user, earliest_arrive_date=earliest_arrive, latest_arrive_date=latest_arrive, passenger_num=passenger_num,special_request=special_request)
         # update ride
         # if ride.total_passengers == 0:
         #     ride.total_passengers = ride.current_passengers_num
@@ -157,6 +173,7 @@ def join_ride(request, ride_id):
         return redirect('view_rides')
 
     return redirect('search_rides')
+
 
 
 

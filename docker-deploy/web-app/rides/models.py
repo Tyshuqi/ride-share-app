@@ -7,6 +7,7 @@ from users.models import Driver
 class Ride(models.Model):
     class RideStatus(models.TextChoices):
         OPEN = 'OPEN', _('Open')
+        # PENDING stands for open rides have shares joined in 
         PENDING = 'PENDING', _('Pending')
         CONFIRMED = 'CONFIRMED', _('Confirmed')
         COMPLETE = 'COMPLETE', _('Complete')
@@ -34,6 +35,8 @@ class Ridesharer(models.Model):
     earliest_arrive_date = models.DateTimeField()
     latest_arrive_date = models.DateTimeField()
     passenger_num = models.PositiveIntegerField(default=1)
+    #2.5 add sharer special info
+    special_request = models.TextField(blank=True)  
 
     def __str__(self):
         return f'{self.sharer.username} - Request for {self.ride.destination}'

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="top-left-corner">
+  <a href="{% url 'ride_home' %}" class = "link2">Home</a>
+</div>
+  <h2>Edit Passenger Number</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class = "link2">Update Ride</button>
+  </form>
+{% endblock %}
