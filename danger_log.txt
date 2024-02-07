@@ -1,28 +1,39 @@
 01/26
-When the owner set the ride is no-shareable, the other users can still see this ride and join in it.
+When the owner set the ride is no-shareable, the other users can still see this ride and join in it, the code logic has some problem.
+We added a filter condition, and solved this problem.
 
 01/28
 We ingore a problem that driver can find open rides created by themselves.
+We added a filter condition, and solved this problem.
 
 01/29
 Shares can still see the same rides which they are already in, and join in again.
+We added a filter condition, and solved this problem.
 
 01/30
 When shares join in the ride, the owner can still edit ride (destination, passenger number and etc), which is unreasonable for sharers if the owner change the destination.
+We solved this problem by adding a PENDING state if the ride status is open and sharers have joined in, the owner cannot edit, when ride status is open, they can edit.
 
 01/31
 Many drivers can claim the same ride, we need to double check the ride status or update it.
+We solved this corner case.
 
 02/01
 When a driver confirm a open ride, the owner and sharers can not see the driver's info.
+We solved this problem.
 
 02/03
 The user must fill in the email, because they need to receive ride's confirm email.
+We added email in form, solved this problem.
 
 02/04
 The driver can omit their license number, which is unreasonable.
+We delete 'blank = true', solved this problem.
 
 02/05
 Our model do not have a special request for sharers, shares' special request should match with the owner's special request
+We added a field and added sharer_ride_edit function and etc, solved that problem.
 
 02/06
+Our app lacks the function for sharers to edit rides, we will add function for sharers to edit their passenger number.
+We added sharer_ride_edit function and etc, solved that problem.
