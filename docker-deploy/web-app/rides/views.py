@@ -32,7 +32,7 @@ class RideRequestView(LoginRequiredMixin, CreateView):
     model = Ride
     form_class = RideRequestForm
     template_name = 'ride_request.html'
-    success_url = reverse_lazy('ride_home')  # Redirect to 'ride_home' after a successful request
+    success_url = reverse_lazy('ride_home')  
 
     def form_valid(self, form):
         form.instance.owner = self.request.user  # Set the owner of the ride to the current user
@@ -62,7 +62,7 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     form_class = RideRequestForm
     template_name = 'ride_edit.html'
     context_object_name = 'ride'
-    success_url = reverse_lazy('view_rides')  # Redirect to 'ride_home' after a successful request
+    success_url = reverse_lazy('view_rides')  
 
     def test_func(self):
         ride = self.get_object()
@@ -77,11 +77,6 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 #2.5 add sharer edit the passenger num
 @login_required
 def sharer_ride_edit(request, ride_id):
-#     ridesharer = get_object_or_404(Ridesharer, ride_id=ride_id, sharer=request.user)
-#     if request.method == 'POST':
-#         form = EditRideSharerForm(request.POST, instance=ridesharer)
-#         if form.is_valid():
-#             form.save()
     ridesharer = get_object_or_404(Ridesharer, ride_id=ride_id, sharer=request.user)
     initial_passenger_num = ridesharer.passenger_num  # Store the initial passenger number
 
@@ -248,18 +243,7 @@ def claim_ride(request, ride_id):
         return redirect('error_page')
 
 
-    
-# logger = logging.getLogger(__name__)
-
-# def send_ride_notification_email(ride, subject):
-#     try:
-#         recipient_list = [ride.owner.email] 
-#         #+ [sharer.sharer.email for sharer in ride.sharers.all()]
-#         message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
-#         send_mail(subject, message, EMAIL_HOST_USER, recipient_list)
-#     except Exception as e:  # Catch all exceptions related to send_mail
-#         logger.error(f"Failed to send email notification: {e}")
-    
+# Our email function will test in local and show through zoom
 def send_ride_notification_email(ride, subject):
     try:
         # Prepare the recipient list
@@ -278,6 +262,19 @@ def send_ride_notification_email(ride, subject):
         error_message = f"Failed to send email notification: {e}"
         return error_message
 
+# import logging
+
+# logger = logging.getLogger(__name__)
+
+# def send_ride_notification_email(ride, subject):
+#     #print("send_ride_notification_email 被调用")
+#     try:
+#         recipient_list = [ride.owner.email] + [sharer.sharer.email for sharer in ride.sharers.all()]
+#         message = f"Notification for ride to {ride.destination} on {ride.arrive_time}: {subject}"
+#         send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list, fail_silently=False)
+#         logger.info("Email sent successfully")
+#     except Exception as e:
+#         logger.error(f"Failed to send email notification: {e}")   
 
 
 @login_required
