@@ -74,6 +74,7 @@ class RideEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return self.form_invalid(form)
         return super().form_valid(form)
 
+
 #2.5 add sharer edit the passenger num
 @login_required
 def sharer_ride_edit(request, ride_id):
@@ -91,7 +92,7 @@ def sharer_ride_edit(request, ride_id):
             # Update Ride's current_passengers_num with the difference
             ride = ridesharer.ride  
             ride.current_passengers_num = F('current_passengers_num') + passenger_num_difference
-            ride.save()
+            ride.save()   #commit change to database
 
             form.save()  
             messages.success(request, "Ride request updated successfully.")
@@ -107,11 +108,11 @@ def sharer_ride_edit(request, ride_id):
 # Sharer search rides
 @login_required
 def search_rides(request):
-    search_form = RideSearchForm(request.POST or None)
+    search_form = RideSearchForm(request.POST or None)   #request method is POST, populates the form with the data from request, otherwise create empty form
     rides = Ride.objects.none()
 
     if request.method == 'POST' and search_form.is_valid():
-        # Convert datetime objects to strings for JSON serialization
+        # form data extracted and converted into a dictionary search_data, this dictionary is useful for later use for session
         search_data = {
             'destination': search_form.cleaned_data['destination'],
             'earliest_arrive': search_form.cleaned_data['earliest_arrive'].isoformat() if search_form.cleaned_data['earliest_arrive'] else None,
@@ -119,14 +120,15 @@ def search_rides(request):
             'passenger_num': search_form.cleaned_data['passenger_num'],
             'special_request': search_form.cleaned_data['special_request']
         }
-
+        # store the search data entered by the user in the session, the data in session canbe used in other function
         request.session['search_data'] = search_data
-
+            # valid data
         destination = search_form.cleaned_data['destination']
         earliest_arrive = search_form.cleaned_data['earliest_arrive']
         latest_arrive = search_form.cleaned_data['latest_arrive']
         special_request = search_form.cleaned_data['special_request']
 
+        # queryset contains rides_id , exclude owner can still share their own rides or join in the same ride as sharer
         user_rides_ids = Ride.objects.filter(
             Q(owner=request.user) | Q(sharers__sharer=request.user)
         ).values_list('id', flat=True)
@@ -135,22 +137,24 @@ def search_rides(request):
             Q(status='OPEN') | Q(status='PENDING'),
             can_be_shared = True,
             destination=destination,
-            arrive_time__gte=earliest_arrive,
+            arrive_time__gte=earliest_arrive,  # greater than rides model's arrive_time field
             arrive_time__lte=latest_arrive,
             special_request=special_request
             
         ).exclude(id__in=user_rides_ids)
+        #id__in is id field
 
     return render(request, 'search_rides.html', {'form': search_form, 'rides': rides})
 
 
 
 @login_required
-def join_ride(request, ride_id):
+def join_ride(request, ride_id):    #ride_id unique identifier, url: 'join-ride/<int:ride_id>/'
     if request.method == 'POST':
-        ride = Ride.objects.get(id=ride_id)
-        search_data = request.session.get('search_data', {})
-
+        ride = Ride.objects.get(id=ride_id)  #fetch ride object corresponding to the "ride_id" from the database
+        search_data = request.session.get('search_data', {})  #retrieve search data from the session 
+        
+        # parse time string to time object
         earliest_arrive = parse_datetime(search_data.get('earliest_arrive')) if search_data.get('earliest_arrive') else None
         latest_arrive = parse_datetime(search_data.get('latest_arrive')) if search_data.get('latest_arrive') else None
         passenger_num = search_data.get('passenger_num')
@@ -171,7 +175,7 @@ def join_ride(request, ride_id):
 
 
 
-
+# offer_ride button
 @login_required
 def offer_ride(request):
     # Check if the user is a driver
@@ -180,12 +184,13 @@ def offer_ride(request):
     else:
         return redirect('user_info')
 
+
 @login_required
 def driver_home(request):
     return render(request, 'driver_home.html')
 
 
-
+# driver search ride
 @login_required
 def driver_ride_search(request):
     try:
@@ -217,7 +222,7 @@ def driver_ride_search(request):
     return render(request, 'driver_ride_search.html', {'rides': rides})
 
 
-
+# confirm the open ride
 def claim_ride(request, ride_id):
     # Retrieve the driver and ride, or show 404 if not found
     driver = get_object_or_404(Driver, user=request.user)
@@ -232,7 +237,7 @@ def claim_ride(request, ride_id):
         # Update ride details
         ride.driver = driver
         ride.status = Ride.RideStatus.CONFIRMED
-        ride.save()
+        ride.save()  # commit to db
 
         # Send notification about claiming the ride
         send_ride_notification_email(ride, 'Ride Claimed Notification')
@@ -297,10 +302,12 @@ def complete_ride(request, ride_id):
     # Redirect back if not a POST request
     return redirect('view_confirmed_rides')
 
+
 @login_required
 def owner_ride_details(request, ride_id):
-    ride = get_object_or_404(Ride, pk=ride_id)
+    ride = get_object_or_404(Ride, pk=ride_id)  # primary key, can also use id=ride_id
     return render(request, 'owner_ride_details.html', {'ride': ride})
+
 
 @login_required
 def sharer_ride_details(request, ride_id):
@@ -328,6 +335,8 @@ def driver_ride_details(request, ride_id):
         'ride': ride
     }
     return render(request, 'driver_ride_details.html', context)
+
+
 
 def error_page(request):
     return render(request, 'error_page.html')
